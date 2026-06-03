@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Tracker Dashboard</title>
+    <title>Update Tracker</title>
     <style>
         :root {
             --primary: #1e3a8a;
@@ -434,8 +434,8 @@
     <div class="container">
         <header>
             <div>
-                <h1>Update Tracker Dashboard</h1>
-                <p>Consolidate your internal updates into folders with native formatting preservation, inline images, and workspace synchronization.</p>
+                <h1>🚀Update Tracker</h1>
+                <p>This tracker shows updates shatred within the Team</p>
             </div>
             
             <div class="view-switcher">
@@ -447,7 +447,7 @@
         <div class="search-panel" id="searchPanel">
             <div class="search-wrapper">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="dashboardSearch" class="search-input" placeholder="Search update topics or deep description logs instantly..." oninput="executeWorkspaceSearch()">
+                <input type="text" id="dashboardSearch" class="search-input" placeholder="Search with any text" oninput="executeWorkspaceSearch()">
             </div>
             <button type="button" onclick="clearWorkspaceSearch()" style="background: var(--border); color: var(--text); padding: 11px 16px; font-size:13px;">Clear</button>
         </div>
@@ -507,7 +507,7 @@
         </div>
 
         <div class="folder-container">
-            <h2 style="font-size: 18px; color: var(--primary); margin-bottom: 15px;">📁 Folder Repository &amp; Logs</h2>
+            <h2 style="font-size: 18px; color: var(--primary); margin-bottom: 15px;">📁 Topic wise Folders</h2>
             <div id="repositoryPlaceholder" class="no-data">No folders created yet. Switch to Admin mode to initialize structures.</div>
             <div id="repository"></div>
         </div>
