@@ -552,26 +552,23 @@
         let attachmentCacheName = "";
         let attachmentCacheData = "";
 
-        if (localStorage.getItem('trackerData')) {
-            try {
-                trackerData = JSON.parse(localStorage.getItem('trackerData'));
-                renderAll();
-            } catch(e) {
-                console.error("Data load error", e);
-            }
-        } else {
-            trackerData.folders = {
-                "Sample Operations": [
-                    {
-                        topic: "Preserved Paste Workspace Active",
-                        date: "2026-06-02",
-                        personInvolved: "System Engine",
-                        description: "<h1>Pasted Content Heading</h1><ul><li><b>Bold list metric</b></li><li>Normal nested bullet element</li></ul>"
-                    }
-                ]
-            };
-            saveAndRender();
-        }
+let trackerData = { folders: {} };
+
+// Load data from JSON file
+function loadDataFromJSON() {
+  fetch("./data.json?ts=" + new Date().getTime())
+    .then(response => response.json())
+    .then(data => {
+      trackerData = data;
+      renderAll();
+    })
+    .catch(error => {
+      console.error("Error loading JSON:", error);
+    });
+}
+
+// Load when page starts
+loadDataFromJSON();
 
         document.getElementById('date').valueAsDate = new Date();
 
@@ -642,15 +639,10 @@
         }
 
         function saveAndRender() {
-            try {
-                localStorage.setItem('trackerData', JSON.stringify(trackerData));
-            } catch (e) {
-                if (e.name === 'QuotaExceededError') {
-                    alert("⚠️ Storage Limit Alert: The image data pasted is too large for the browser's local memory registry. Please use the 'Export System Backup' button to save your file safely offline!");
-                }
-            }
-            renderAll();
-        }
+  alert("⚠️ Changes are temporary. Please update data.json in GitHub to make permanent changes.");
+  renderAll();
+}
+
 
         // --- DEEP TEXT HIGHLIGHT ENGINE ---
         function highlightPhraseInNode(node, phrase) {
