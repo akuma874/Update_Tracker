@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Tracker</title>
+    <title>Update Tracker Dashboard</title>
     <style>
         :root {
             --primary: #1e3a8a;
@@ -131,13 +131,12 @@
             pointer-events: none;
         }
 
-        /* FIXED: Vibrant highlight styling to precisely match your uploaded image */
         mark.search-match {
-            background-color: #f97316 !important; /* Solid vivid orange background */
-            color: #0f172a !important;            /* Ultra-dark slate for crystal clear readability */
-            border-radius: 0px !important;         /* Sharp corners to look like a precise text select tool */
+            background-color: #f97316 !important; 
+            color: #0f172a !important;            
+            border-radius: 0px !important;         
             padding: 1px 3px !important;
-            font-weight: inherit !important;       /* Keeps original text weight */
+            font-weight: inherit !important;       
             display: inline;
         }
 
@@ -254,32 +253,16 @@
         }
 
         button:hover { background-color: var(--accent); }
-        
         .btn-danger { background-color: var(--danger); }
         .btn-danger:hover { background-color: #dc2626; }
-        
         .btn-warning { background-color: var(--warning); color: white; }
         .btn-warning:hover { background-color: #d97706; }
-        
         .btn-success { background-color: var(--success); color: white; }
         .btn-success:hover { background-color: #059669; }
 
-        .btn-link {
-            background: none;
-            color: var(--accent);
-            padding: 0;
-            font-size: 13px;
-            text-decoration: underline;
-        }
+        .btn-link { background: none; color: var(--accent); padding: 0; font-size: 13px; text-decoration: underline; }
         .btn-link:hover { color: var(--primary); background: none; }
-        
-        .btn-link-danger {
-            background: none;
-            color: var(--danger);
-            padding: 0;
-            font-size: 13px;
-            text-decoration: underline;
-        }
+        .btn-link-danger { background: none; color: var(--danger); padding: 0; font-size: 13px; text-decoration: underline; }
         .btn-link-danger:hover { color: #dc2626; background: none; }
 
         .attachment-badge {
@@ -307,37 +290,10 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
-        .no-data {
-            text-align: center;
-            color: var(--text-light);
-            padding: 15px 0;
-            font-style: italic;
-        }
-
-        .folder-block {
-            margin-bottom: 20px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            overflow: hidden;
-            transition: max-height 0.2s ease;
-        }
-
-        .folder-block.hidden {
-            display: none !important;
-        }
-
-        .folder-header {
-            background-color: var(--primary-light);
-            color: var(--primary);
-            padding: 12px 15px;
-            font-weight: 700;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid var(--border);
-        }
-
+        .no-data { text-align: center; color: var(--text-light); padding: 15px 0; font-style: italic; }
+        .folder-block { margin-bottom: 20px; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+        .folder-block.hidden { display: none !important; }
+        .folder-header { background-color: var(--primary-light); color: var(--primary); padding: 12px 15px; font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
         .folder-header::before { content: "📁"; font-size: 18px; }
 
         .update-item { border-bottom: 1px solid var(--border); }
@@ -362,66 +318,19 @@
         .update-trigger:hover { background-color: #fafafa; }
         .trigger-left { display: flex; align-items: center; gap: 10px; }
         .trigger-left::before { content: "📄"; }
+        .trigger-meta { font-size: 12px; color: var(--text-light); background-color: var(--bg); padding: 3px 8px; border-radius: 4px; }
 
-        .trigger-meta {
-            font-size: 12px;
-            color: var(--text-light);
-            background-color: var(--bg);
-            padding: 3px 8px;
-            border-radius: 4px;
-        }
-
-        .update-content {
-            display: none;
-            padding: 15px 20px;
-            background-color: #fdfdfd;
-            border-top: 1px dashed var(--border);
-        }
-
+        .update-content { display: none; padding: 15px 20px; background-color: #fdfdfd; border-top: 1px dashed var(--border); }
         .update-content.active { display: block; }
 
-        .meta-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .meta-block-label {
-            font-size: 11px;
-            text-transform: uppercase;
-            color: var(--text-light);
-            font-weight: 700;
-            margin-bottom: 2px;
-        }
-
+        .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; }
+        .meta-block-label { font-size: 11px; text-transform: uppercase; color: var(--text-light); font-weight: 700; margin-bottom: 2px; }
         .meta-block-val { font-size: 14px; color: var(--text); }
         .description-box { margin-top: 10px; }
         
-        .item-actions {
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 1px solid #f1f5f9;
-            display: flex;
-            gap: 15px;
-            justify-content: flex-end;
-        }
-
-        .management-list {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        .management-list th, .management-list td {
-            text-align: left;
-            padding: 10px;
-            border-bottom: 1px solid var(--border);
-            font-size: 14px;
-        }
-
+        .item-actions { margin-top: 15px; padding-top: 10px; border-top: 1px solid #f1f5f9; display: flex; gap: 15px; justify-content: flex-end; }
+        .management-list { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .management-list th, .management-list td { text-align: left; padding: 10px; border-bottom: 1px solid var(--border); font-size: 14px; }
         .management-list th { background-color: var(--bg); color: var(--text-light); }
         .flex-btn-group { display: flex; gap: 5px; }
 
@@ -434,8 +343,8 @@
     <div class="container">
         <header>
             <div>
-                <h1>🚀Update Tracker</h1>
-                <p>This tracker shows updates shatred within the Team</p>
+                <h1>Update Tracker Dashboard</h1>
+                <p>Consolidate your internal updates into folders with native formatting preservation, inline images, and workspace synchronization.</p>
             </div>
             
             <div class="view-switcher">
@@ -447,7 +356,7 @@
         <div class="search-panel" id="searchPanel">
             <div class="search-wrapper">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="dashboardSearch" class="search-input" placeholder="Search with any text" oninput="executeWorkspaceSearch()">
+                <input type="text" id="dashboardSearch" class="search-input" placeholder="Search update topics or deep description logs instantly..." oninput="executeWorkspaceSearch()">
             </div>
             <button type="button" onclick="clearWorkspaceSearch()" style="background: var(--border); color: var(--text); padding: 11px 16px; font-size:13px;">Clear</button>
         </div>
@@ -507,19 +416,19 @@
         </div>
 
         <div class="folder-container">
-            <h2 style="font-size: 18px; color: var(--primary); margin-bottom: 15px;">📁 Topic wise Folders</h2>
-            <div id="repositoryPlaceholder" class="no-data">No folders created yet. Switch to Admin mode to initialize structures.</div>
+            <h2 style="font-size: 18px; color: var(--primary); margin-bottom: 15px;">📁 Folder Repository &amp; Logs</h2>
+            <div id="repositoryPlaceholder" class="no-data">Loading synchronized records database...</div>
             <div id="repository"></div>
         </div>
 
         <div class="migration-panel admin-only">
             <h2 style="font-size: 18px; color: var(--success); margin-bottom: 10px;">💾 Backup &amp; Migration Engine</h2>
-            <p style="font-size: 13px; color: var(--text-light); margin-bottom: 15px;">Migrate your setup to another computer easily, or factory reset the interface back to blank settings.</p>
+            <p style="font-size: 13px; color: var(--text-light); margin-bottom: 15px;">Use the 'Export System Backup' button to save your modifications into a file named <b>tracker_data.json</b> and commit it back into your GitHub repository branch to publish updates to your team instantly.</p>
             <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
                 <button type="button" class="btn-success" onclick="exportDataWorkspace()">📤 Export System Backup</button>
                 <div style="border-left: 1px dashed var(--border); height: 35px;"></div>
                 <div>
-                    <label for="importFile" style="margin-bottom: 2px;">📥 Restore/Import System Backup</label>
+                    <label for="importFile" style="margin-bottom: 2px;">📥 Temporary File Preview Override</label>
                     <input type="file" id="importFile" accept=".json" onchange="importDataWorkspace(event)" style="padding: 5px; width: auto; font-size: 12px;">
                 </div>
                 <div style="border-left: 1px dashed var(--border); height: 35px;"></div>
@@ -552,28 +461,37 @@
         let attachmentCacheName = "";
         let attachmentCacheData = "";
 
-        if (localStorage.getItem('trackerData')) {
-            try {
-                trackerData = JSON.parse(localStorage.getItem('trackerData'));
-                renderAll();
-            } catch(e) {
-                console.error("Data load error", e);
-            }
-        } else {
-            trackerData.folders = {
-                "Sample Operations": [
-                    {
-                        topic: "Preserved Paste Workspace Active",
-                        date: "2026-06-02",
-                        personInvolved: "System Engine",
-                        description: "<h1>Pasted Content Heading</h1><ul><li><b>Bold list metric</b></li><li>Normal nested bullet element</li></ul>"
+        // NEW: Pulls structural state directly from your deployed GitHub folder workspace automatically
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('date').valueAsDate = new Date();
+            
+            fetch('tracker_data.json', { cache: "no-store" })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("JSON profile signature file not deployed yet.");
                     }
-                ]
-            };
-            saveAndRender();
-        }
-
-        document.getElementById('date').valueAsDate = new Date();
+                    return response.json();
+                })
+                .then(data => {
+                    trackerData = data;
+                    renderAll();
+                })
+                .catch(err => {
+                    console.warn("Could not load tracking manifest file from server repository. Initializing local default configuration fallback.", err);
+                    // Standard structural framework fallback if repository json file isn't uploaded yet
+                    trackerData.folders = {
+                        "Sample Operations": [
+                            {
+                                topic: "Synchronized Live File Online",
+                                date: "2026-06-04",
+                                personInvolved: "System Framework",
+                                description: "<p>Welcome! Add elements inside admin panels, then export file layout into <b>tracker_data.json</b> inside your main master workspace.</p>"
+                            }
+                        ]
+                    };
+                    renderAll();
+                });
+        });
 
         document.getElementById('fileAttachment').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -641,20 +559,8 @@
             renderAll();
         }
 
-        function saveAndRender() {
-            try {
-                localStorage.setItem('trackerData', JSON.stringify(trackerData));
-            } catch (e) {
-                if (e.name === 'QuotaExceededError') {
-                    alert("⚠️ Storage Limit Alert: The image data pasted is too large for the browser's local memory registry. Please use the 'Export System Backup' button to save your file safely offline!");
-                }
-            }
-            renderAll();
-        }
-
-        // --- DEEP TEXT HIGHLIGHT ENGINE ---
         function highlightPhraseInNode(node, phrase) {
-            if (node.nodeType === 3) { // Text Node
+            if (node.nodeType === 3) { 
                 const pos = node.data.toLowerCase().indexOf(phrase);
                 if (pos >= 0) {
                     const match = node.data.substr(pos, phrase.length);
@@ -683,7 +589,6 @@
                     parent.normalize(); 
                     return;
                 }
-                // Read downwards in reverse to clear nested elements cleanly
                 for (let i = node.childNodes.length - 1; i >= 0; i--) {
                     if(node.childNodes[i]) clearHighlights(node.childNodes[i]);
                 }
@@ -739,7 +644,6 @@
             executeWorkspaceSearch();
         }
 
-        // --- FOLDER OPERATIONS ---
         function createFolder() {
             const folderInput = document.getElementById('newFolderName');
             const folderName = folderInput.value.trim();
@@ -748,7 +652,7 @@
             
             trackerData.folders[folderName] = [];
             folderInput.value = "";
-            saveAndRender();
+            renderAll();
         }
 
         function renameFolder(oldName) {
@@ -761,18 +665,17 @@
 
             trackerData.folders[trimmedName] = trackerData.folders[oldName];
             delete trackerData.folders[oldName];
-            saveAndRender();
+            renderAll();
         }
 
         function deleteFolder(folderName) {
             if (confirm(`Are you sure you want to delete "${folderName}" and all its records? This cannot be undone.`)) {
                 delete trackerData.folders[folderName];
                 resetForm();
-                saveAndRender();
+                renderAll();
             }
         }
 
-        // --- UPDATE ITEM OPERATIONS ---
         function handleFormSubmit(event) {
             event.preventDefault();
             const editIndex = document.getElementById('editItemIndex').value;
@@ -782,7 +685,6 @@
             const topic = document.getElementById('topic').value.trim();
             const date = document.getElementById('date').value;
             const personInvolved = document.getElementById('personInvolved').value.trim() || "Not Specified";
-            
             const description = document.getElementById('descriptionEditor').innerHTML;
 
             let entryData = { topic, date, personInvolved, description };
@@ -808,7 +710,7 @@
                 trackerData.folders[targetFolder].push(entryData);
                 resetForm();
             }
-            saveAndRender();
+            renderAll();
         }
 
         function triggerEditItem(folderName, originalIndex) {
@@ -826,7 +728,6 @@
             document.getElementById('topic').value = item.topic;
             document.getElementById('date').value = item.date;
             document.getElementById('personInvolved').value = item.personInvolved;
-            
             document.getElementById('descriptionEditor').innerHTML = item.description;
 
             document.getElementById('inputPanel').scrollIntoView({ behavior: 'smooth' });
@@ -836,7 +737,7 @@
             if (confirm("Delete this update entry permanently?")) {
                 trackerData.folders[folderName].splice(index, 1);
                 resetForm();
-                saveAndRender();
+                renderAll();
             }
         }
 
@@ -859,12 +760,12 @@
             element.nextElementSibling.classList.toggle('active');
         }
 
-        // --- BACKUP ENGINE OPERATIONS ---
+        // MODIFIED: Automatically targets and packages into the synchronized filename structure
         function exportDataWorkspace() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(trackerData));
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(trackerData, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "update_tracker_backup.json");
+            downloadAnchor.setAttribute("download", "tracker_data.json");
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
@@ -879,32 +780,29 @@
                 try {
                     const importedData = JSON.parse(e.target.result);
                     if (importedData && importedData.folders) {
-                        if(confirm("Are you sure you want to import this file? It will replace your current settings parameters safely.")) {
+                        if(confirm("Apply local data view file placeholder override?")) {
                             trackerData = importedData;
-                            saveAndRender();
-                            alert("Workspace setup restored successfully!");
+                            renderAll();
                             document.getElementById('importFile').value = "";
                         }
                     } else {
-                        alert("Error: Invalid system backup file format structure.");
+                        alert("Error: Invalid configuration file.");
                     }
                 } catch (err) {
-                    alert("Error parsing backup data file.");
+                    alert("Error parsing file.");
                 }
             };
             reader.readAsText(file);
         }
 
         function clearAllDataWorkspace() {
-            if(confirm("⚠️ CRITICAL WARNING:\n\nAre you absolutely sure you want to completely erase the tracker? This will wipe out ALL current folders, test logs, and embedded attachments permanently.")) {
+            if(confirm("Are you sure you want to empty out active data memory models?")) {
                 trackerData = { folders: {} };
-                saveAndRender();
+                renderAll();
                 resetForm();
-                alert("Dashboard data has been completely cleared. You now have a completely fresh page!");
             }
         }
 
-        // --- RENDER PIPELINE ---
         function renderAll() {
             const repo = document.getElementById('repository');
             const placeholder = document.getElementById('repositoryPlaceholder');
@@ -923,6 +821,7 @@
             
             if (folderKeys.length === 0) {
                 placeholder.style.display = "block";
+                placeholder.textContent = "No data folders found. Switch views to construct entries.";
                 managementTable.style.display = "none";
                 settingsPlaceholder.style.display = "block";
                 return;
@@ -1021,7 +920,6 @@
             if (trackerData.folders[currentSelectedValue]) {
                 selectDropdown.value = currentSelectedValue;
             }
-            
             executeWorkspaceSearch();
         }
     </script>
