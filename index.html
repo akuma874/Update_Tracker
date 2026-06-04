@@ -423,7 +423,7 @@
 
         <div class="migration-panel admin-only">
             <h2 style="font-size: 18px; color: var(--success); margin-bottom: 10px;">💾 Backup &amp; Migration Engine</h2>
-            <p style="font-size: 13px; color: var(--text-light); margin-bottom: 15px;">Use the 'Export System Backup' button to save your modifications into a file named <b>tracker_data.json</b> and commit it back into your GitHub repository branch to publish updates to your team instantly.</p>
+            <p style="font-size: 13px; color: var(--text-light); margin-bottom: 15px;">Use the 'Export System Backup' button to save your modifications into a file named <b>data.json</b> and commit it back into your GitHub repository branch to publish updates to your team instantly.</p>
             <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
                 <button type="button" class="btn-success" onclick="exportDataWorkspace()">📤 Export System Backup</button>
                 <div style="border-left: 1px dashed var(--border); height: 35px;"></div>
@@ -465,7 +465,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('date').valueAsDate = new Date();
             
-            fetch('tracker_data.json', { cache: "no-store" })
+            fetch('data.json', { cache: "no-store" })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error("JSON profile signature file not deployed yet.");
@@ -485,7 +485,7 @@
                                 topic: "Synchronized Live File Online",
                                 date: "2026-06-04",
                                 personInvolved: "System Framework",
-                                description: "<p>Welcome! Add elements inside admin panels, then export file layout into <b>tracker_data.json</b> inside your main master workspace.</p>"
+                                description: "<p>Welcome! Add elements inside admin panels, then export file layout into <b>data.json</b> inside your main master workspace.</p>"
                             }
                         ]
                     };
@@ -765,7 +765,7 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(trackerData, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "tracker_data.json");
+            downloadAnchor.setAttribute("download", "data.json");
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
