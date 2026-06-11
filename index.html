@@ -6,18 +6,41 @@
     <title>🚀 Update Tracker</title>
     <style>
         :root {
-            --primary: #1e3a8a;
-            --primary-light: #eff6ff;
-            --accent: #3b82f6;
-            --text: #1e293b;
-            --text-light: #64748b;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --border: #e2e8f0;
+            --primary: #3b82f6;
+            --primary-light: rgba(59, 130, 246, 0.15);
+            --accent: #60a5fa;
             --danger: #ef4444;
-            --danger-light: #fef2f2;
             --warning: #f59e0b;
             --success: #10b981;
+            
+            /* Default View: High-Contrast Premium Dark Slate Theme */
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --panel-bg: #1e293b;
+            --border: #334155;
+            --text: #f8fafc;
+            --text-light: #94a3b8;
+            --input-bg: rgba(15, 23, 42, 0.6);
+            --accordion-bg: #1e293b;
+            --trigger-bg: #1e293b;
+            --trigger-hover: #334155;
+        }
+
+        /* Admin Mode: High-Contrast Warm Charcoal / Dark Espresso & Amber Layout */
+        body.admin-mode {
+            --bg: #1c1514;
+            --card-bg: #2b201d;
+            --panel-bg: #2b201d;
+            --border: #44322c;
+            --text: #fdfaf7;
+            --text-light: #bcaaa4;
+            --primary: #f59e0b;
+            --primary-light: rgba(245, 158, 11, 0.15);
+            --accent: #fbbf24;
+            --input-bg: rgba(28, 21, 20, 0.6);
+            --accordion-bg: #2b201d;
+            --trigger-bg: #2b201d;
+            --trigger-hover: #3e2f2a;
         }
 
         * {
@@ -25,6 +48,7 @@
             margin: 0;
             padding: 0;
             font-family: 'Aptos Narrow', 'Segoe UI', system-ui, sans-serif;
+            transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
         }
 
         body {
@@ -50,7 +74,7 @@
         }
 
         header h1 {
-            color: var(--primary);
+            color: var(--accent);
             font-size: 28px;
             margin-bottom: 5px;
         }
@@ -61,11 +85,12 @@
         }
 
         .view-switcher {
-            background-color: var(--border);
-            padding: 4px;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 5px;
             border-radius: 8px;
             display: inline-flex;
             gap: 5px;
+            border: 1px solid var(--border);
         }
 
         .view-btn {
@@ -79,22 +104,22 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            transition: all 0.2s ease;
+            border: none;
         }
 
         .view-btn.active {
-            background-color: var(--card-bg);
-            color: var(--primary);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            background-color: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
         .search-panel {
-            background-color: var(--card-bg);
+            background-color: var(--panel-bg);
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 15px 20px;
             margin-bottom: 25px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
             display: flex;
             align-items: center;
             gap: 12px;
@@ -111,14 +136,14 @@
             border: 1px solid var(--border);
             border-radius: 6px;
             font-size: 15px;
-            background-color: #fff;
-            transition: all 0.2s;
+            background-color: var(--input-bg);
+            color: var(--text);
         }
 
         .search-input:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
         }
 
         .search-icon {
@@ -141,12 +166,12 @@
         }
 
         .controls-panel, .settings-panel, .migration-panel {
-            background-color: var(--card-bg);
+            background-color: var(--panel-bg);
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 30px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
         }
 
         .settings-panel { border-top: 4px solid var(--warning); }
@@ -184,13 +209,13 @@
             border: 1px solid var(--border);
             border-radius: 6px;
             font-size: 14px;
-            color: var(--text);
-            background-color: #fff;
+            color: #ffffff;
+            background-color: var(--input-bg);
         }
 
         input[type="file"] {
             padding: 6px;
-            background: var(--bg);
+            color: var(--text-light);
         }
 
         input:focus, select:focus, textarea:focus {
@@ -206,7 +231,8 @@
             padding: 12px;
             border: 1px solid var(--border);
             border-radius: 6px;
-            background-color: #fff;
+            background-color: var(--input-bg);
+            color: #ffffff;
             font-size: 14px;
             line-height: 1.6;
         }
@@ -214,7 +240,7 @@
         .rich-editor:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
         }
 
         .rich-editor img, .rendered-content img {
@@ -222,17 +248,17 @@
             height: auto;
             border-radius: 6px;
             margin: 8px 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             display: block;
         }
 
         .rendered-content {
             font-size: 14px;
             line-height: 1.6;
-            color: #334155;
+            color: #e2e8f0;
         }
-        .rendered-content h1 { font-size: 20px; margin: 12px 0 6px 0; color: var(--primary); }
-        .rendered-content h2 { font-size: 18px; margin: 10px 0 5px 0; color: var(--primary); }
+        .rendered-content h1 { font-size: 20px; margin: 12px 0 6px 0; color: var(--accent); }
+        .rendered-content h2 { font-size: 18px; margin: 10px 0 5px 0; color: var(--accent); }
         .rendered-content h3 { font-size: 16px; margin: 8px 0 4px 0; color: var(--text); }
         .rendered-content ul, .rendered-content ol { margin-left: 24px; margin-bottom: 10px; }
         .rendered-content li { margin-bottom: 4px; }
@@ -252,25 +278,20 @@
             gap: 5px;
         }
 
-        button:hover { background-color: var(--accent); }
+        button:hover { opacity: 0.9; }
         .btn-danger { background-color: var(--danger); }
-        .btn-danger:hover { background-color: #dc2626; }
         .btn-warning { background-color: var(--warning); color: white; }
-        .btn-warning:hover { background-color: #d97706; }
         .btn-success { background-color: var(--success); color: white; }
-        .btn-success:hover { background-color: #059669; }
 
         .btn-link { background: none; color: var(--accent); padding: 0; font-size: 13px; text-decoration: underline; }
-        .btn-link:hover { color: var(--primary); background: none; }
         .btn-link-danger { background: none; color: var(--danger); padding: 0; font-size: 13px; text-decoration: underline; }
-        .btn-link-danger:hover { color: #dc2626; background: none; }
 
         .attachment-badge {
             display: inline-flex;
             align-items: center;
             gap: 5px;
             background-color: var(--primary-light);
-            color: var(--primary);
+            color: var(--accent);
             padding: 5px 10px;
             border-radius: 4px;
             font-size: 13px;
@@ -279,22 +300,56 @@
             margin-top: 5px;
             border: 1px dashed var(--accent);
         }
-        .attachment-badge:hover { background-color: var(--accent); color: white; }
+        .attachment-badge:hover { background-color: var(--accent); color: #0f172a; }
 
         .folder-container {
-            background: var(--card-bg);
+            background: var(--panel-bg);
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 30px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
         }
 
         .no-data { text-align: center; color: var(--text-light); padding: 15px 0; font-style: italic; }
-        .folder-block { margin-bottom: 20px; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+        .folder-block { margin-bottom: 20px; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background-color: rgba(0,0,0,0.15); }
         .folder-block.hidden { display: none !important; }
-        .folder-header { background-color: var(--primary-light); color: var(--primary); padding: 12px 15px; font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
-        .folder-header::before { content: "📁"; font-size: 18px; }
+        
+        .folder-header { 
+            background-color: var(--primary-light); 
+            color: var(--text); 
+            padding: 12px 15px; 
+            font-weight: 700; 
+            font-size: 16px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid var(--border); 
+        }
+        .folder-title { display: flex; align-items: center; gap: 10px; color: var(--accent); }
+        .folder-title::before { content: "📁"; font-size: 18px; }
+        
+        .folder-toggle-btn {
+            background: rgba(0, 0, 0, 0.25);
+            color: var(--accent);
+            border: 1px solid var(--border);
+            padding: 4px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .folder-toggle-btn:hover {
+            background-color: var(--accent);
+            color: #0f172a;
+        }
+
+        .folder-content-wrapper {
+            display: block;
+        }
+        .folder-content-wrapper.collapsed {
+            display: none;
+        }
 
         .update-item { border-bottom: 1px solid var(--border); }
         .update-item:last-child { border-bottom: none; }
@@ -303,7 +358,7 @@
         .update-trigger {
             width: 100%;
             text-align: left;
-            background: #fff;
+            background: var(--trigger-bg);
             padding: 14px 15px;
             border: none;
             cursor: pointer;
@@ -315,23 +370,23 @@
             color: var(--text);
         }
 
-        .update-trigger:hover { background-color: #fafafa; }
+        .update-trigger:hover { background-color: var(--trigger-hover); }
         .trigger-left { display: flex; align-items: center; gap: 10px; }
         .trigger-left::before { content: "📄"; }
-        .trigger-meta { font-size: 12px; color: var(--text-light); background-color: var(--bg); padding: 3px 8px; border-radius: 4px; }
+        .trigger-meta { font-size: 12px; color: var(--text-light); background-color: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border); }
 
-        .update-content { display: none; padding: 15px 20px; background-color: #fdfdfd; border-top: 1px dashed var(--border); }
+        .update-content { display: none; padding: 15px 20px; background-color: rgba(0,0,0,0.1); border-top: 1px dashed var(--border); }
         .update-content.active { display: block; }
 
-        .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; }
+        .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
         .meta-block-label { font-size: 11px; text-transform: uppercase; color: var(--text-light); font-weight: 700; margin-bottom: 2px; }
         .meta-block-val { font-size: 14px; color: var(--text); }
         .description-box { margin-top: 10px; }
         
-        .item-actions { margin-top: 15px; padding-top: 10px; border-top: 1px solid #f1f5f9; display: flex; gap: 15px; justify-content: flex-end; }
+        .item-actions { margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--border); display: flex; gap: 15px; justify-content: flex-end; }
         .management-list { width: 100%; border-collapse: collapse; margin-top: 10px; }
         .management-list th, .management-list td { text-align: left; padding: 10px; border-bottom: 1px solid var(--border); font-size: 14px; }
-        .management-list th { background-color: var(--bg); color: var(--text-light); }
+        .management-list th { background-color: rgba(0,0,0,0.3); color: var(--text-light); }
         .flex-btn-group { display: flex; gap: 5px; }
 
         .admin-only { display: block; }
@@ -358,11 +413,11 @@
                 <span class="search-icon">🔍</span>
                 <input type="text" id="dashboardSearch" class="search-input" placeholder="Search update topics or deep description logs instantly..." oninput="executeWorkspaceSearch()">
             </div>
-            <button type="button" onclick="clearWorkspaceSearch()" style="background: var(--border); color: var(--text); padding: 11px 16px; font-size:13px;">Clear</button>
+            <button type="button" onclick="clearWorkspaceSearch()" style="background: rgba(0,0,0,0.3); color: var(--text); border: 1px solid var(--border); padding: 11px 16px; font-size:13px; border-radius:6px; cursor:pointer;">Clear</button>
         </div>
 
         <div class="controls-panel admin-only" id="inputPanel">
-            <h2 id="panelTitle" style="font-size: 16px; color: var(--primary); margin-bottom: 15px; text-transform: uppercase;">➕ Add Update Entry</h2>
+            <h2 id="panelTitle" style="font-size: 16px; color: var(--accent); margin-bottom: 15px; text-transform: uppercase;">➕ Add Update Entry</h2>
             
             <div class="form-inline" id="folderCreateRow">
                 <div style="flex-grow: 1;">
@@ -416,7 +471,7 @@
         </div>
 
         <div class="folder-container">
-            <h2 style="font-size: 18px; color: var(--primary); margin-bottom: 15px;">📁 Topic Wise Folders</h2>
+            <h2 style="font-size: 18px; color: var(--accent); margin-bottom: 15px;">📁 Topic Wise Folders</h2>
             <div id="repositoryPlaceholder" class="no-data">Loading synchronized records database...</div>
             <div id="repository"></div>
         </div>
@@ -437,7 +492,7 @@
         </div>
 
         <div class="settings-panel admin-only" id="settingsSection">
-            <h2 style="font-size: 18px; color: var(--primary); margin-bottom: 10px;">⚙️ Manage Architecture Settings</h2>
+            <h2 style="font-size: 18px; color: var(--accent); margin-bottom: 10px;">⚙️ Manage Architecture Settings</h2>
             <p style="font-size: 13px; color: var(--text-light); margin-bottom: 20px;">Use this control hub to rename folders or delete unwanted structures entirely.</p>
             
             <div id="settingsPlaceholder" class="no-data">No active folders to manage.</div>
@@ -460,11 +515,20 @@
 
         let attachmentCacheName = "";
         let attachmentCacheData = "";
+        
+        let collapsedFolders = {};
 
-        // NEW: Pulls structural state directly from your deployed GitHub folder workspace automatically
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('date').valueAsDate = new Date();
+            loadWorkspaceDataFromServer(true);
             
+            setInterval(() => {
+                console.log("Auto-refresh triggering sync sequence with server manifest database...");
+                loadWorkspaceDataFromServer(false);
+            }, 300000);
+        });
+
+        function loadWorkspaceDataFromServer(isInitialLoad) {
             fetch('data.json', { cache: "no-store" })
                 .then(response => {
                     if (!response.ok) {
@@ -474,24 +538,40 @@
                 })
                 .then(data => {
                     trackerData = data;
+                    if (isInitialLoad) {
+                        resetFoldersToMinimized();
+                    }
                     renderAll();
                 })
                 .catch(err => {
                     console.warn("Could not load tracking manifest file from server repository. Initializing local default configuration fallback.", err);
-                    // Standard structural framework fallback if repository json file isn't uploaded yet
-                    trackerData.folders = {
-                        "Sample Operations": [
-                            {
-                                topic: "Synchronized Live File Online",
-                                date: "2026-06-04",
-                                personInvolved: "System Framework",
-                                description: "<p>Welcome! Add elements inside admin panels, then export file layout into <b>data.json</b> inside your main master workspace.</p>"
-                            }
-                        ]
-                    };
+                    if (!trackerData.folders || Object.keys(trackerData.folders).length === 0) {
+                        trackerData.folders = {
+                            "Sample Operations": [
+                                {
+                                    topic: "Synchronized Live File Online",
+                                    date: "2026-06-04",
+                                    personInvolved: "System Framework",
+                                    description: "<p>Welcome! Add elements inside admin panels, then export file layout into <b>data.json</b> inside your main master workspace.</p>"
+                                }
+                            ]
+                        };
+                    }
+                    if (isInitialLoad) {
+                        resetFoldersToMinimized();
+                    }
                     renderAll();
                 });
-        });
+        }
+
+        function resetFoldersToMinimized() {
+            collapsedFolders = {};
+            if (trackerData && trackerData.folders) {
+                Object.keys(trackerData.folders).forEach(folderName => {
+                    collapsedFolders[folderName] = true;
+                });
+            }
+        }
 
         document.getElementById('fileAttachment').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -555,6 +635,8 @@
                 adminBtn.classList.remove('active');
                 resetForm();
             }
+            
+            resetFoldersToMinimized();
             clearWorkspaceSearch();
             renderAll();
         }
@@ -631,8 +713,19 @@
                     }
                 });
 
+                const contentWrapper = block.querySelector('.folder-content-wrapper');
                 if (matchesInFolder > 0 || query === "") {
                     block.classList.remove('hidden');
+                    
+                    if (query !== "" && contentWrapper) {
+                        contentWrapper.classList.remove('collapsed');
+                        const toggleBtn = block.querySelector('.folder-toggle-btn');
+                        if (toggleBtn) toggleBtn.textContent = "[-]";
+                    } else if (query === "" && contentWrapper && collapsedFolders[block.getAttribute('data-foldername')]) {
+                        contentWrapper.classList.add('collapsed');
+                        const toggleBtn = block.querySelector('.folder-toggle-btn');
+                        if (toggleBtn) toggleBtn.textContent = "[+]";
+                    }
                 } else {
                     block.classList.add('hidden');
                 }
@@ -644,6 +737,19 @@
             executeWorkspaceSearch();
         }
 
+        function toggleFolderMinimize(folderName, btn) {
+            const wrapper = btn.parentElement.nextElementSibling;
+            if (wrapper.classList.contains('collapsed')) {
+                wrapper.classList.remove('collapsed');
+                btn.textContent = "[-]";
+                collapsedFolders[folderName] = false;
+            } else {
+                wrapper.classList.add('collapsed');
+                btn.textContent = "[+]";
+                collapsedFolders[folderName] = true;
+            }
+        }
+
         function createFolder() {
             const folderInput = document.getElementById('newFolderName');
             const folderName = folderInput.value.trim();
@@ -651,6 +757,7 @@
             if (trackerData.folders[folderName]) return alert("Folder already exists.");
             
             trackerData.folders[folderName] = [];
+            collapsedFolders[folderName] = true;
             folderInput.value = "";
             renderAll();
         }
@@ -665,12 +772,17 @@
 
             trackerData.folders[trimmedName] = trackerData.folders[oldName];
             delete trackerData.folders[oldName];
+            
+            collapsedFolders[trimmedName] = collapsedFolders[oldName] !== undefined ? collapsedFolders[oldName] : true;
+            delete collapsedFolders[oldName];
+            
             renderAll();
         }
 
         function deleteFolder(folderName) {
             if (confirm(`Are you sure you want to delete "${folderName}" and all its records? This cannot be undone.`)) {
                 delete trackerData.folders[folderName];
+                delete collapsedFolders[folderName];
                 resetForm();
                 renderAll();
             }
@@ -760,7 +872,6 @@
             element.nextElementSibling.classList.toggle('active');
         }
 
-        // MODIFIED: Automatically targets and packages into the synchronized filename structure
         function exportDataWorkspace() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(trackerData, null, 2));
             const downloadAnchor = document.createElement('a');
@@ -782,6 +893,7 @@
                     if (importedData && importedData.folders) {
                         if(confirm("Apply local data view file placeholder override?")) {
                             trackerData = importedData;
+                            resetFoldersToMinimized();
                             renderAll();
                             document.getElementById('importFile').value = "";
                         }
@@ -798,6 +910,7 @@
         function clearAllDataWorkspace() {
             if(confirm("Are you sure you want to empty out active data memory models?")) {
                 trackerData = { folders: {} };
+                collapsedFolders = {};
                 renderAll();
                 resetForm();
             }
@@ -842,16 +955,28 @@
 
                 const folderBlock = document.createElement('div');
                 folderBlock.className = 'folder-block';
+                folderBlock.setAttribute('data-foldername', folderName);
+
+                if (collapsedFolders[folderName] === undefined) {
+                    collapsedFolders[folderName] = true;
+                }
+                const isCollapsed = collapsedFolders[folderName] === true;
+                const toggleButtonSign = isCollapsed ? "[+]" : "[-]";
 
                 const folderHeader = document.createElement('div');
                 folderHeader.className = 'folder-header';
-                folderHeader.textContent = `${folderName} (${trackerData.folders[folderName].length})`;
+                
+                folderHeader.innerHTML = `
+                    <div class="folder-title">${folderName} (${trackerData.folders[folderName].length})</div>
+                    <button type="button" class="folder-toggle-btn" onclick="toggleFolderMinimize('${folderName.replace(/'/g, "\\'")}', this)">${toggleButtonSign}</button>
+                `;
                 folderBlock.appendChild(folderHeader);
 
-                const itemWrapper = document.createElement('div');
+                const contentWrapper = document.createElement('div');
+                contentWrapper.className = `folder-content-wrapper ${isCollapsed ? 'collapsed' : ''}`;
                 
                 if (trackerData.folders[folderName].length === 0) {
-                    itemWrapper.innerHTML = `<div class="no-data">Folder empty.</div>`;
+                    contentWrapper.innerHTML = `<div class="no-data">Folder empty.</div>`;
                 } else {
                     let itemMapped = trackerData.folders[folderName].map((item, idx) => ({ ...item, originalIndex: idx }));
                     itemMapped.sort((a,b) => new Date(b.date) - new Date(a.date));
@@ -897,15 +1022,15 @@
                                 ${actionButtonsMarkup}
                             </div>
                         `;
-                        itemWrapper.appendChild(updateItem);
+                        contentWrapper.appendChild(updateItem);
                     });
                 }
-                folderBlock.appendChild(itemWrapper);
+                folderBlock.appendChild(contentWrapper);
                 repo.appendChild(folderBlock);
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td style="font-weight:600; color:var(--primary);">${folderName}</td>
+                    <td style="font-weight:600; color:var(--accent);">${folderName}</td>
                     <td>${trackerData.folders[folderName].length} items</td>
                     <td>
                         <div class="flex-btn-group">
