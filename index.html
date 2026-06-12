@@ -391,6 +391,61 @@
 
         .admin-only { display: block; }
         body.user-mode .admin-only { display: none !important; }
+
+        /* Secure Overlay Password Masking Modal */
+        .secure-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(15, 23, 42, 0.85);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        .secure-modal-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 25px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+        .secure-modal-card h3 {
+            margin-bottom: 12px;
+            font-size: 18px;
+            color: var(--accent);
+        }
+        .secure-modal-card input[type="password"] {
+            margin: 15px 0;
+            text-align: center;
+            letter-spacing: 4px;
+            font-size: 16px;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        /* Footer System Styles */
+        footer {
+            margin-top: 40px;
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-light);
+            line-height: 1.5;
+        }
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body class="user-mode">
@@ -403,7 +458,7 @@
             </div>
             
             <div class="view-switcher">
-                <button type="button" class="view-btn" id="adminViewToggle" onclick="switchView('admin')">🛠️ Admin View</button>
+                <button type="button" class="view-btn" id="adminViewToggle" onclick="openSecureAuthModal()">🛠️ Admin View</button>
                 <button type="button" class="view-btn active" id="userViewToggle" onclick="switchView('user')">👥 Team User View</button>
             </div>
         </header>
@@ -507,6 +562,22 @@
                 <tbody id="managementTbody"></tbody>
             </table>
         </div>
+
+        <footer>
+            For any updates and queries, pls contact <b>Abhishek Kumar</b> (+91 7290 961 815) or <a href="mailto:abhishek_kumar@optum.com">abhishek_kumar@optum.com</a>.
+        </footer>
+    </div>
+
+    <div class="secure-modal" id="authModal">
+        <div class="secure-modal-card">
+            <h3>🛠️ Admin Authentication</h3>
+            <p style="font-size: 13px; color: var(--text-light);">Enter Access Password to Unlock System Architecture Settings</p>
+            <input type="password" id="securePasswordInput" placeholder="••••••••" onkeydown="handleModalKeydown(event)">
+            <div class="modal-buttons">
+                <button type="button" onclick="submitSecureAuth()">Unlock</button>
+                <button type="button" class="btn-danger" onclick="closeSecureAuthModal()">Cancel</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -609,25 +680,58 @@
             }
         });
 
+        /* Masked Password Secure Modals */
+        function openSecureAuthModal() {
+            if (currentViewMode === 'admin') return; 
+            const modal = document.getElementById('authModal');
+            const passInput = document.getElementById('securePasswordInput');
+            passInput.value = "";
+            modal.style.display = "flex";
+            passInput.focus();
+        }
+
+        function closeSecureAuthModal() {
+            document.getElementById('authModal').style.display = "none";
+            const userBtn = document.getElementById('userViewToggle');
+            const adminBtn = document.getElementById('adminViewToggle');
+            if (currentViewMode === 'user') {
+                userBtn.classList.add('active');
+                adminBtn.classList.remove('active');
+            }
+        }
+
+        function handleModalKeydown(event) {
+            if (event.key === 'Enter') {
+                submitSecureAuth();
+            } else if (event.key === 'Escape') {
+                closeSecureAuthModal();
+            }
+        }
+
+        function submitSecureAuth() {
+            const passInput = document.getElementById('securePasswordInput');
+            const userPass = passInput.value;
+            
+            if (userPass === "Abhi@1999") {
+                document.getElementById('authModal').style.display = "none";
+                switchView('admin');
+            } else {
+                alert("Authentication Failure: Invalid Access Password.");
+                passInput.value = "";
+                passInput.focus();
+            }
+        }
+
         function switchView(mode) {
             const body = document.body;
             const adminBtn = document.getElementById('adminViewToggle');
             const userBtn = document.getElementById('userViewToggle');
 
             if (mode === 'admin') {
-                const userPass = prompt("Enter Admin Authentication Password to Unlock Settings:");
-                if (userPass === "Abhi@1999") {
-                    currentViewMode = "admin";
-                    body.className = "admin-mode";
-                    adminBtn.classList.add('active');
-                    userBtn.classList.remove('active');
-                } else {
-                    alert("Authentication Failure: Invalid Access Password.");
-                    currentViewMode = "user";
-                    body.className = "user-mode";
-                    userBtn.classList.add('active');
-                    adminBtn.classList.remove('active');
-                }
+                currentViewMode = "admin";
+                body.className = "admin-mode";
+                adminBtn.classList.add('active');
+                userBtn.classList.remove('active');
             } else {
                 currentViewMode = "user";
                 body.className = "user-mode";
