@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚀 Update Tracker</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <style>
         :root {
             --primary: #3b82f6;
@@ -279,9 +283,9 @@
         
         <div class="search-container">
             <div class="search-wrapper">
-                <input type="text" id="search" placeholder="🔍 Search updates by title or description..." oninput="executeWorkspaceSearch()">
+                <input type="text" id="search" placeholder="🔍 Search updates by title or description..." oninput="filterContent()">
             </div>
-            <button class="btn-secondary" onclick="clearWorkspaceSearchFilters()">Reset</button>
+            <button class="btn-secondary" onclick="resetSearch()">Reset</button>
         </div>
 
         <div class="grid-layout">
@@ -290,7 +294,7 @@
                 
                 <div class="card admin-only" style="margin-bottom: 1.5rem;">
                     <h2>📂 Create Folder</h2>
-                    <form id="folderForm" onsubmit="createNewWorkspaceFolder(event)">
+                    <form id="folderForm" onsubmit="addFolder(event)">
                         <div class="form-group">
                             <label for="folderName">Folder Name</label>
                             <input type="text" id="folderName" placeholder="e.g., Sprint 1 Updates" required>
@@ -301,7 +305,7 @@
 
                 <div class="card admin-only" style="margin-bottom: 1.5rem;">
                     <h2>📝 Add New Update</h2>
-                    <form id="updateForm" onsubmit="publishNewUpdateItemLog(event)">
+                    <form id="updateForm" onsubmit="addUpdate(event)">
                         <div class="form-group">
                             <label for="updateFolder">Select Folder</label>
                             <select id="updateFolder" required>
@@ -335,15 +339,15 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="management-table-tbody"></tbody>
+                            <tbody id="managementTableBody"></tbody>
                         </table>
                     </div>
                     
                     <div class="utility-box">
-                        <button type="button" class="btn-success" style="flex:1; font-size:12px; padding:8px;" onclick="backupJSONExportData()">📤 Export JSON</button>
+                        <button type="button" class="btn-success" style="flex:1; font-size:12px; padding:8px;" onclick="exportData()">📤 Export JSON</button>
                         <div style="position:relative; flex:1;">
                             <button type="button" class="btn-secondary" style="width:100%; font-size:12px; padding:8px;">📥 Import JSON</button>
-                            <input type="file" id="bulk-import-input" accept=".json" style="position:absolute; left:0; top:0; opacity:0; width:100%; height:100%; cursor:pointer;" onchange="importJSONBackupData(event)">
+                            <input type="file" id="importFile" accept=".json" style="position:absolute; left:0; top:0; opacity:0; width:100%; height:100%; cursor:pointer;" onchange="importData(event)">
                         </div>
                     </div>
                 </div>
@@ -351,17 +355,14 @@
             </div>
 
             <div class="main-content" id="repo">
-                <div class="no-data">⌛ Synchronizing updates with Firebase cloud database...</div>
+                <div class="no-data">⌛ Connecting to Firebase...</div>
             </div>
 
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        // Firebase configuration
+    <script>
+        // 1. FIREBASE CONFIGURATION & INITIALIZATION
         const firebaseConfig = {
             apiKey: "AIzaSyBeMu-xGaNx_SM_lfBlFUQILZprgTq3pxQ",
             authDomain: "uat-dashboard-50539.firebaseapp.com",
@@ -372,122 +373,296 @@
             measurementId: "G-3DFXG8H73"
         };
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const docRef = db.collection("config_collection").doc("tracker_config");
 
-        // Tracker Configuration Reference
-        const trackerDocRef = doc(db, "config_collection", "tracker_config");
-
+        // 2. GLOBAL VARIABLES
         let trackerData = { folders: {} };
-        let openFoldersState = {}; 
+        let openFolders = {}; 
         const ADMIN_PASSWORD = "Abhi@1999";
 
-        // DOM Targets
-        const repo = document.getElementById('repo');
-        const selectDropdown = document.getElementById('updateFolder');
-        const managementTbody = document.getElementById('management-table-tbody');
-
-        // Snapshot cloud listener
-        onSnapshot(trackerDocRef, (docSnap) => {
-            if (docSnap.exists()) {
-                trackerData = docSnap.data();
+        // 3. FIREBASE REAL-TIME LISTENER (Replaces loadData)
+        docRef.onSnapshot((doc) => {
+            if (doc.exists) {
+                trackerData = doc.data();
                 if (!trackerData.folders) trackerData.folders = {};
             } else {
                 trackerData = { folders: {} };
-                setDoc(trackerDocRef, trackerData);
+                saveData(); // Create document if it doesn't exist
             }
-            renderTrackerWorkspace();
+            renderTracker();
         });
 
-        // Write to firestore instance
-        async function syncTrackerToFirebase() {
-            try {
-                await setDoc(trackerDocRef, trackerData);
-            } catch (error) {
-                console.error("Database cloud write error: ", error);
-                alert("⚠️ Sync Failed! Verify Firestore Rules are deployed.");
+        // 4. FIREBASE SAVE FUNCTION (Replaces local storage)
+        function saveData() {
+            docRef.set(trackerData)
+                .then(() => console.log("Data synced to Firebase!"))
+                .catch((error) => alert("Error saving data: " + error.message));
+        }
+
+        // 5. ALL ORIGINAL UI FUNCTIONS (Untouched)
+        function toggleAdminMode() {
+            const body = document.body;
+            const adminBtn = document.getElementById('adminBtn');
+            
+            if (body.classList.contains('admin-mode')) {
+                body.classList.remove('admin-mode');
+                adminBtn.textContent = '⚙️ Admin Mode';
+                adminBtn.className = 'btn-secondary';
+                renderTracker();
+            } else {
+                const pass = prompt("Enter Admin Password:");
+                if (pass === ADMIN_PASSWORD) {
+                    body.classList.add('admin-mode');
+                    adminBtn.textContent = '🔑 Exit Admin Mode';
+                    adminBtn.className = 'btn-danger';
+                    renderTracker();
+                } else if (pass !== null) {
+                    alert("❌ Incorrect Password!");
+                }
             }
         }
 
-        function renderTrackerWorkspace() {
-            const currentSelectedValue = selectDropdown.value;
+        function toggleFolder(folderName) {
+            openFolders[folderName] = openFolders[folderName] === false;
+            renderTracker();
+        }
+
+        function addFolder(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('folderName');
+            const name = nameInput.value.trim();
+            
+            if (trackerData.folders[name]) {
+                alert('❌ A folder with this name already exists!');
+                return;
+            }
+            
+            trackerData.folders[name] = [];
+            saveData();
+            nameInput.value = '';
+        }
+
+        function addUpdate(e) {
+            e.preventDefault();
+            const folder = document.getElementById('updateFolder').value;
+            const title = document.getElementById('updateTitle').value.trim();
+            const desc = document.getElementById('updateDesc').value.trim();
+            const url = document.getElementById('updateUrl').value.trim();
+            
+            const newUpdate = {
+                id: 'up_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                title: title,
+                desc: desc,
+                url: url,
+                date: new Date().toLocaleString()
+            };
+            
+            trackerData.folders[folder].push(newUpdate);
+            saveData();
+            
+            document.getElementById('updateTitle').value = '';
+            document.getElementById('updateDesc').value = '';
+            document.getElementById('updateUrl').value = '';
+        }
+
+        function deleteFolder(folderName) {
+            if (confirm(`⚠️ Are you sure you want to delete the folder "${folderName}" and ALL its updates?`)) {
+                delete trackerData.folders[folderName];
+                delete openFolders[folderName];
+                saveData();
+            }
+        }
+
+        function renameFolder(oldName) {
+            const newName = prompt(`Rename folder "${oldName}" to:`, oldName);
+            if (newName && newName.trim() !== "" && newName.trim() !== oldName) {
+                const cleanName = newName.trim();
+                if (trackerData.folders[cleanName]) {
+                    alert("❌ A folder with that name already exists!");
+                    return;
+                }
+                trackerData.folders[cleanName] = trackerData.folders[oldName];
+                delete trackerData.folders[oldName];
+                if (openFolders[oldName] !== undefined) {
+                    openFolders[cleanName] = openFolders[oldName];
+                    delete openFolders[oldName];
+                }
+                saveData();
+            }
+        }
+
+        function editUpdate(folderName, updateId) {
+            const updates = trackerData.folders[folderName];
+            const item = updates.find(u => u.id === updateId);
+            if (!item) return;
+
+            const newTitle = prompt("Edit Title:", item.title);
+            if (newTitle === null) return;
+            const newDesc = prompt("Edit Description:", item.desc);
+            if (newDesc === null) return;
+            const newUrl = prompt("Edit Reference Link:", item.url);
+            if (newUrl === null) return;
+
+            item.title = newTitle.trim() || item.title;
+            item.desc = newDesc.trim() || item.desc;
+            item.url = newUrl.trim();
+            item.date = new Date().toLocaleString() + " (Edited)";
+
+            saveData();
+        }
+
+        function deleteUpdate(folderName, updateId) {
+            if (confirm("🗑️ Delete this update item log?")) {
+                trackerData.folders[folderName] = trackerData.folders[folderName].filter(u => u.id !== updateId);
+                saveData();
+            }
+        }
+
+        function filterContent() {
+            const query = document.getElementById('search').value.toLowerCase().trim();
+            const blocks = document.getElementsByClassName('folder-block');
+            
+            for (let block of blocks) {
+                let hasVisibleItems = false;
+                const items = block.getElementsByClassName('update-item');
+                
+                for (let item of items) {
+                    const title = item.querySelector('.update-title').textContent.toLowerCase();
+                    const desc = item.querySelector('.update-desc').textContent.toLowerCase();
+                    
+                    if (title.includes(query) || desc.includes(query)) {
+                        item.style.display = 'block';
+                        hasVisibleItems = true;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                }
+                block.style.display = (hasVisibleItems || !query) ? 'block' : 'none';
+            }
+        }
+
+        function resetSearch() {
+            document.getElementById('search').value = '';
+            filterContent();
+        }
+
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(trackerData, null, 4));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", "tracker_backup.json");
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+        }
+
+        function importData(event) {
+            const reader = new FileReader();
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (parsed && typeof parsed.folders === 'object') {
+                        if (confirm("Valid backup parsed. Sync live data arrays to Firebase Firestore?")) {
+                            trackerData = parsed;
+                            saveData();
+                        }
+                    } else {
+                        alert("❌ Parsing error: Missing standard folders property schema mapping.");
+                    }
+                } catch (err) {
+                    alert("❌ Bad formatting. Upload proper text json maps.");
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function renderTracker() {
+            const repo = document.getElementById('repo');
+            const selectDropdown = document.getElementById('updateFolder');
+            const managementTbody = document.getElementById('managementTableBody');
+            const isAdmin = document.body.classList.contains('admin-mode');
+            const currentSelected = selectDropdown.value;
 
             selectDropdown.innerHTML = '<option value="">-- Select Folder --</option>';
             managementTbody.innerHTML = '';
             repo.innerHTML = '';
 
-            const folderNames = Object.keys(trackerData.folders).sort();
+            const folders = Object.keys(trackerData.folders).sort();
 
-            if (folderNames.length === 0) {
-                repo.innerHTML = `<div class="no-data">⚠️ No folders found. Switch to Admin Mode to create one.</div>`;
+            if (folders.length === 0) {
+                repo.innerHTML = '<div class="no-data">📦 No update folders created yet. Switch to Admin Mode to start.</div>';
                 return;
             }
 
-            folderNames.forEach(folderName => {
-                const option = document.createElement('option');
-                option.value = folderName;
-                option.textContent = folderName;
-                selectDropdown.appendChild(option);
+            folders.forEach(folderName => {
+                const opt = document.createElement('option');
+                opt.value = folderName;
+                opt.textContent = folderName;
+                selectDropdown.appendChild(opt);
 
                 const folderBlock = document.createElement('div');
                 folderBlock.className = 'folder-block';
 
-                const isOpen = openFoldersState[folderName] !== false; 
+                const isOpen = openFolders[folderName] !== false;
 
-                const buttonTrigger = document.createElement('button');
-                buttonTrigger.type = 'button';
-                buttonTrigger.className = 'folder-trigger';
-                buttonTrigger.innerHTML = `
+                const trigger = document.createElement('button');
+                trigger.type = 'button';
+                trigger.className = 'folder-trigger';
+                trigger.innerHTML = `
                     <span>📂 ${folderName} (${trackerData.folders[folderName].length} items)</span>
-                    <span class="chevron-indicator">${isOpen ? '▲' : '▼'}</span>
+                    <span>${isOpen ? '▲' : '▼'}</span>
                 `;
-                buttonTrigger.onclick = () => toggleFolderStateVisibility(folderName);
-                folderBlock.appendChild(buttonTrigger);
+                trigger.onclick = () => toggleFolder(folderName);
+                folderBlock.appendChild(trigger);
 
-                const contentWrapper = document.createElement('div');
-                contentWrapper.className = 'folder-content';
-                contentWrapper.style.display = isOpen ? 'flex' : 'none';
+                const content = document.createElement('div');
+                content.className = 'folder-content';
+                content.style.display = isOpen ? 'flex' : 'none';
 
-                const itemsList = trackerData.folders[folderName];
-                if (itemsList.length === 0) {
-                    contentWrapper.innerHTML = `<div style="text-align:center; color:var(--text-light); font-style:italic; font-size:0.9rem;">Folder is empty.</div>`;
+                const items = trackerData.folders[folderName];
+                if (items.length === 0) {
+                    content.innerHTML = '<div style="text-align:center; color:var(--text-light); font-style:italic; font-size:0.9rem;">Folder is empty.</div>';
                 } else {
-                    const displayedItems = [...itemsList].reverse();
-                    displayedItems.forEach((item) => {
-                        const updateItem = document.createElement('div');
-                        updateItem.className = 'update-item';
+                    [...items].reverse().forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'update-item';
                         
-                        const fileMarkup = item.url ? `<a href="${item.url}" target="_blank" class="attachment-link">📎 Reference Link</a>` : '';
-                        
-                        const actionButtonsMarkup = document.body.classList.contains('admin-mode') ? `
+                        let linksSection = item.url ? `<a href="${item.url}" target="_blank" class="attachment-link">📎 Reference Link</a>` : '';
+                        let adminActions = isAdmin ? `
                             <div class="flex-btn-group" style="margin-top:1rem; border-top:1px dashed var(--border); padding-top:0.75rem;">
-                                <button type="button" class="btn-warning" style="padding:4px 8px; font-size:11px; border-radius:4px;" onclick="modifyLoggedUpdateEntry('${folderName.replace(/'/g, "\\'")}', '${item.id}')">✏️ Edit</button>
-                                <button type="button" class="btn-danger" style="padding:4px 8px; font-size:11px; border-radius:4px;" onclick="purgeLoggedUpdateEntry('${folderName.replace(/'/g, "\\'")}', '${item.id}')">🗑️ Delete</button>
+                                <button type="button" class="btn-warning" style="padding:4px 8px; font-size:11px; border-radius:4px;" onclick="editUpdate('${folderName.replace(/'/g, "\\'")}', '${item.id}')">✏️ Edit</button>
+                                <button type="button" class="btn-danger" style="padding:4px 8px; font-size:11px; border-radius:4px;" onclick="deleteUpdate('${folderName.replace(/'/g, "\\'")}', '${item.id}')">🗑️ Delete</button>
                             </div>
                         ` : '';
 
-                        updateItem.innerHTML = `
+                        div.innerHTML = `
                             <div>
                                 <div class="update-header">
                                     <h4 class="update-title">${item.title}</h4>
                                     <span class="update-date">📅 ${item.date}</span>
                                 </div>
                                 <p class="update-desc">${item.desc}</p>
-                                ${fileMarkup}
-                                ${actionButtonsMarkup}
+                                ${linksSection}
+                                ${adminActions}
                             </div>
                         `;
-                        contentWrapper.appendChild(updateItem);
+                        content.appendChild(div);
                     });
                 }
-                folderBlock.appendChild(contentWrapper);
+
+                folderBlock.appendChild(content);
                 repo.appendChild(folderBlock);
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td style="font-weight:600; color:var(--accent);">${folderName}</td>
-                    <td>${trackerData.folders[folderName].length} items</td>
+                    <td>${items.length} items</td>
                     <td>
                         <div class="flex-btn-group">
                             <button type="button" class="btn-warning" style="padding: 5px 10px; font-size:12px;" onclick="renameFolder('${folderName.replace(/'/g, "\\'")}')">✏️ Rename</button>
@@ -498,210 +673,11 @@
                 managementTbody.appendChild(tr);
             });
 
-            if (trackerData.folders[currentSelectedValue]) {
-                selectDropdown.value = currentSelectedValue;
+            if (trackerData.folders[currentSelected]) {
+                selectDropdown.value = currentSelected;
             }
-            executeWorkspaceSearch();
+            filterContent();
         }
-
-        window.createNewWorkspaceFolder = function(e) {
-            e.preventDefault();
-            const inputField = document.getElementById('folderName');
-            const name = inputField.value.trim();
-            if (!name) return;
-
-            if (trackerData.folders[name]) {
-                alert("Folder already exists!");
-                return;
-            }
-
-            trackerData.folders[name] = [];
-            syncTrackerToFirebase();
-            inputField.value = '';
-        };
-
-        window.publishNewUpdateItemLog = function(e) {
-            e.preventDefault();
-            const folder = document.getElementById('updateFolder').value;
-            const title = document.getElementById('updateTitle').value.trim();
-            const desc = document.getElementById('updateDesc').value.trim();
-            const url = document.getElementById('updateUrl').value.trim();
-
-            if (!folder || !title || !desc) return;
-
-            const newLog = {
-                id: 'log-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
-                title,
-                desc,
-                date: new Date().toLocaleString(),
-                url
-            };
-
-            trackerData.folders[folder].push(newLog);
-            syncTrackerToFirebase();
-
-            document.getElementById('updateTitle').value = '';
-            document.getElementById('updateDesc').value = '';
-            document.getElementById('updateUrl').value = '';
-        };
-
-        window.renameFolder = function(oldName) {
-            const newName = prompt(`Rename folder "${oldName}" to:`, oldName);
-            if (newName === null) return;
-            const cleanName = newName.trim();
-            if (!cleanName) return alert("Folder name cannot be empty.");
-
-            if (trackerData.folders[cleanName] && cleanName !== oldName) {
-                return alert("A folder with that name already exists.");
-            }
-
-            trackerData.folders[cleanName] = trackerData.folders[oldName];
-            delete trackerData.folders[oldName];
-
-            if (openFoldersState[oldName] !== undefined) {
-                openFoldersState[cleanName] = openFoldersState[oldName];
-                delete openFoldersState[oldName];
-            }
-
-            syncTrackerToFirebase();
-        };
-
-        window.deleteFolder = function(folderName) {
-            if (confirm(`⚠️ Are you sure you want to delete "${folderName}" and all its contents permanently?`)) {
-                delete trackerData.folders[folderName];
-                delete openFoldersState[folderName];
-                syncTrackerToFirebase();
-            }
-        };
-
-        window.modifyLoggedUpdateEntry = function(folderName, logId) {
-            const items = trackerData.folders[folderName];
-            const itemIndex = items.findIndex(i => i.id === logId);
-            if (itemIndex === -1) return;
-
-            const currentItem = items[itemIndex];
-            const newTitle = prompt("Edit Title:", currentItem.title);
-            if (newTitle === null) return;
-
-            const newDesc = prompt("Edit Description:", currentItem.desc);
-            if (newDesc === null) return;
-
-            const newUrl = prompt("Edit Reference Link (Optional):", currentItem.url);
-            if (newUrl === null) return;
-
-            if (!newTitle.trim() || !newDesc.trim()) return alert("Fields cannot be empty.");
-
-            trackerData.folders[folderName][itemIndex].title = newTitle.trim();
-            trackerData.folders[folderName][itemIndex].desc = newDesc.trim();
-            trackerData.folders[folderName][itemIndex].url = newUrl.trim();
-            trackerData.folders[folderName][itemIndex].date = new Date().toLocaleString() + " (Modified)";
-
-            syncTrackerToFirebase();
-        };
-
-        window.purgeLoggedUpdateEntry = function(folderName, logId) {
-            if (confirm("Delete this update log item?")) {
-                trackerData.folders[folderName] = trackerData.folders[folderName].filter(i => i.id !== logId);
-                syncTrackerToFirebase();
-            }
-        };
-
-        function toggleFolderStateVisibility(folderName) {
-            openFoldersState[folderName] = openFoldersState[folderName] === false;
-            renderTrackerWorkspace();
-        }
-
-        window.executeWorkspaceSearch = function() {
-            const query = document.getElementById('search').value.toLowerCase().trim();
-            const blocks = repo.getElementsByClassName('folder-block');
-
-            if (!query) {
-                for (let block of blocks) {
-                    block.style.display = 'block';
-                    const items = block.getElementsByClassName('update-item');
-                    for (let item of items) item.style.display = 'block';
-                }
-                return;
-            }
-
-            for (let block of blocks) {
-                let folderMatches = false;
-                const items = block.getElementsByClassName('update-item');
-
-                for (let item of items) {
-                    const titleText = item.querySelector('.update-title').textContent.toLowerCase();
-                    const descText = item.querySelector('.update-desc').textContent.toLowerCase();
-
-                    if (titleText.includes(query) || descText.includes(query)) {
-                        item.style.display = 'block';
-                        folderMatches = true;
-                    } else {
-                        item.style.display = 'none';
-                    }
-                }
-                block.style.display = folderMatches ? 'block' : 'none';
-            }
-        };
-
-        window.clearWorkspaceSearchFilters = function() {
-            document.getElementById('search').value = '';
-            executeWorkspaceSearch();
-        };
-
-        window.toggleAdminMode = function() {
-            if (document.body.classList.contains('admin-mode')) {
-                document.body.classList.remove('admin-mode');
-                document.getElementById('adminBtn').className = 'btn-secondary';
-                document.getElementById('adminBtn').textContent = '⚙️ Admin Mode';
-                renderTrackerWorkspace();
-                return;
-            }
-
-            const password = prompt("Enter Admin Password:");
-            if (password === ADMIN_PASSWORD) {
-                document.body.classList.add('admin-mode');
-                document.getElementById('adminBtn').className = 'btn-danger';
-                document.getElementById('adminBtn').textContent = '🔑 Exit Admin Mode';
-                renderTrackerWorkspace();
-            } else if (password !== null) {
-                alert("⚠️ Incorrect Password!");
-            }
-        };
-
-        window.backupJSONExportData = function() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(trackerData, null, 4));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "tracker_backup.json");
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        };
-
-        window.importJSONBackupData = function(event) {
-            const fileReader = new FileReader();
-            const file = event.target.files[0];
-            if (!file) return;
-
-            fileReader.onload = async function(e) {
-                try {
-                    const parsedData = JSON.parse(e.target.result);
-                    if (parsedData && typeof parsedData.folders === 'object') {
-                        if (confirm("Valid update tracker backup layout found. Overwrite live database?")) {
-                            trackerData = parsedData;
-                            await syncTrackerToFirebase();
-                            alert("🚀 Success! Data migrated to Firebase completely.");
-                        }
-                    } else {
-                        alert("Invalid JSON data layout formatting.");
-                    }
-                } catch (err) {
-                    alert("Error processing JSON file structure.");
-                }
-            };
-            fileReader.readAsText(file);
-            event.target.value = '';
-        };
     </script>
 </body>
 </html>
