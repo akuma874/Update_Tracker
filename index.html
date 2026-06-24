@@ -27,7 +27,7 @@
         }
 
         /* Admin Mode: High-Contrast Warm Charcoal / Dark Espresso & Amber Layout */
-        body.admin-mode-active {
+        body.admin-mode {
             --bg: #121212;
             --card-bg: #1e1e1e;
             --panel-bg: #1a1510;
@@ -91,7 +91,6 @@
             }
         }
 
-        /* Form elements & Control panels */
         .card {
             background-color: var(--card-bg);
             border: 1px solid var(--border);
@@ -139,7 +138,6 @@
             box-shadow: 0 0 0 3px var(--primary-light);
         }
 
-        /* Buttons setup */
         button {
             cursor: pointer;
             padding: 0.65rem 1.25rem;
@@ -157,14 +155,13 @@
         button:hover { opacity: 0.9; }
         
         .btn-primary { background-color: var(--primary); color: #000; }
-        body:not(.admin-mode-active) .btn-primary { color: #fff; }
+        body:not(.admin-mode) .btn-primary { color: #fff; }
         .btn-danger { background-color: var(--danger); color: white; }
         .btn-warning { background-color: var(--warning); color: black; }
         .btn-success { background-color: var(--success); color: white; }
         .btn-secondary { background-color: var(--border); color: var(--text); }
 
-        /* Search Filter Utility Bar */
-        .search-bar-container {
+        .search-container {
             background-color: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: 12px;
@@ -180,7 +177,6 @@
             flex: 1;
         }
 
-        /* Content Display Workspace Accordions */
         .folder-block {
             background-color: var(--accordion-bg);
             border: 1px solid var(--border);
@@ -246,7 +242,6 @@
         }
         .attachment-link:hover { text-decoration: underline; }
 
-        /* Tables setup for management views */
         .table-wrapper { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; text-align: left; margin-top: 0.5rem; }
         th, td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
@@ -254,17 +249,16 @@
 
         .flex-btn-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 
-        .admin-only-section { display: none; }
-        body.admin-mode-active .admin-only-section { display: block; }
+        .admin-only { display: none; }
+        body.admin-mode .admin-only { display: block; }
 
-        .no-data-msg {
+        .no-data {
             text-align: center;
             padding: 3rem;
             color: var(--text-light);
             font-style: italic;
         }
 
-        /* Config layout panel rules block wrapper */
         .utility-box {
             display: flex;
             gap: 0.5rem;
@@ -277,73 +271,68 @@
 <body>
 
     <nav class="navbar">
-        <h1>🚀 Update Tracker Workspace</h1>
-        <button id="admin-toggle-btn" class="btn-secondary" onclick="triggerAdminAuthSequence()">⚙️ Enter Admin Mode</button>
+        <h1>🚀 Update Tracker</h1>
+        <button id="adminBtn" class="btn-secondary" onclick="toggleAdminMode()">⚙️ Admin Mode</button>
     </nav>
 
     <div class="container">
         
-        <div class="search-bar-container">
+        <div class="search-container">
             <div class="search-wrapper">
-                <input type="text" id="workspace-search-input" placeholder="🔍 Search updates by title, description text, or keywords..." oninput="executeWorkspaceSearch()">
+                <input type="text" id="search" placeholder="🔍 Search updates by title or description..." oninput="executeWorkspaceSearch()">
             </div>
             <button class="btn-secondary" onclick="clearWorkspaceSearchFilters()">Reset</button>
         </div>
 
         <div class="grid-layout">
             
-            <div class="sidebar-controls">
+            <div class="sidebar">
                 
-                <div class="card" id="user-info-card" style="margin-bottom: 1.5rem; text-align: center;">
-                    <h2>📋 Access Level: Guest View</h2>
-                    <p style="color: var(--text-light); font-size: 0.9rem; margin: 0;">You are viewing production release logs. Authenticate as workspace administrator to manage data layers.</p>
-                </div>
-
-                <div class="card admin-only-section" style="margin-bottom: 1.5rem;">
-                    <h2>📂 Create Tracker Folder</h2>
-                    <form id="folder-creation-form" onsubmit="createNewWorkspaceFolder(event)">
+                <div class="card admin-only" style="margin-bottom: 1.5rem;">
+                    <h2>📂 Create Folder</h2>
+                    <form id="folderForm" onsubmit="createNewWorkspaceFolder(event)">
                         <div class="form-group">
-                            <label for="new-folder-name">Folder Identity Name</label>
-                            <input type="text" id="new-folder-name" placeholder="e.g., Release v2.4.0" required>
+                            <label for="folderName">Folder Name</label>
+                            <input type="text" id="folderName" placeholder="e.g., Sprint 1 Updates" required>
                         </div>
-                        <button type="submit" class="btn-primary" style="width: 100%;">+ Build Folder Layer</button>
+                        <button type="submit" class="btn-primary" style="width: 100%;">Create Folder</button>
                     </form>
                 </div>
 
-                <div class="card admin-only-section" style="margin-bottom: 1.5rem;">
-                    <h2>📝 Publish Update Log</h2>
-                    <form id="log-publication-form" onsubmit="publishNewUpdateItemLog(event)">
+                <div class="card admin-only" style="margin-bottom: 1.5rem;">
+                    <h2>📝 Add New Update</h2>
+                    <form id="updateForm" onsubmit="publishNewUpdateItemLog(event)">
                         <div class="form-group">
-                            <label for="target-folder-select">Target Folder Directory</label>
-                            <select id="target-folder-select" required>
-                                <option value="">-- Choose Folder Destination --</option>
+                            <label for="updateFolder">Select Folder</label>
+                            <select id="updateFolder" required>
+                                <option value="">-- Select Folder --</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="update-item-title">Update Header Title</label>
-                            <input type="text" id="update-item-title" placeholder="e.g., Authentication Patch" required>
+                            <label for="updateTitle">Title</label>
+                            <input type="text" id="updateTitle" placeholder="e.g., Login Bug Fixed" required>
                         </div>
                         <div class="form-group">
-                            <label for="update-item-desc">Log Description / Notes</label>
-                            <textarea id="update-item-desc" rows="4" placeholder="Describe deployment scope changes here..." required></textarea>
+                            <label for="updateDesc">Description</label>
+                            <textarea id="updateDesc" rows="4" placeholder="Enter update details..." required></textarea>
                         </div>
                         <div class="form-group">
-                            <label for="update-item-url">Attachment Link URL (Optional)</label>
-                            <input type="url" id="update-item-url" placeholder="https://sharepoint.com/doc">
+                            <label for="updateUrl">Reference Link (Optional)</label>
+                            <input type="url" id="updateUrl" placeholder="https://example.com">
                         </div>
-                        <button type="submit" class="btn-primary" style="width: 100%;">🚀 Push Log Live</button>
+                        <button type="submit" class="btn-primary" style="width: 100%;">Add Update</button>
                     </form>
                 </div>
 
-                <div class="card admin-only-section">
-                    <h2>⚙️ System Utilities</h2>
+                <div class="card admin-only">
+                    <h2>⚙️ Manage Folders</h2>
                     <div class="table-wrapper">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Folder Name</th>
-                                    <th>Volume</th>
-                                    <th>Action Operations</th>
+                                    <th>Folder</th>
+                                    <th>Items</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="management-table-tbody"></tbody>
@@ -351,7 +340,7 @@
                     </div>
                     
                     <div class="utility-box">
-                        <button type="button" class="btn-success" style="flex:1; font-size:12px; padding:8px;" onclick="backupJSONExportData()">📤 Export Data</button>
+                        <button type="button" class="btn-success" style="flex:1; font-size:12px; padding:8px;" onclick="backupJSONExportData()">📤 Export JSON</button>
                         <div style="position:relative; flex:1;">
                             <button type="button" class="btn-secondary" style="width:100%; font-size:12px; padding:8px;">📥 Import JSON</button>
                             <input type="file" id="bulk-import-input" accept=".json" style="position:absolute; left:0; top:0; opacity:0; width:100%; height:100%; cursor:pointer;" onchange="importJSONBackupData(event)">
@@ -361,8 +350,8 @@
 
             </div>
 
-            <div class="workspace-viewport" id="workspace-repository-root">
-                <div class="no-data-msg">⌛ Synchronizing workspace state with Firebase cloud engine...</div>
+            <div class="main-content" id="repo">
+                <div class="no-data">⌛ Synchronizing updates with Firebase cloud database...</div>
             </div>
 
         </div>
@@ -372,7 +361,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Your specific configurations loaded from the Firebase platform console
+        // Firebase configuration loaded from your platform console screen
         const firebaseConfig = {
             apiKey: "AIzaSyBeMu-xGaNx_SM_lfBlFUQILZprgTq3pxQ",
             authDomain: "uat-dashboard-50539.firebaseapp.com",
@@ -383,86 +372,67 @@
             measurementId: "G-3DFXG8H73"
         };
 
-        // Initialize Firebase Connection
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Target document for Update Tracker configurations
+        // Separate document partition for tracking configs
         const trackerDocRef = doc(db, "config_collection", "tracker_config");
 
-        // Master Application Schema Memory Map
         let trackerData = { folders: {} };
         let openFoldersState = {}; 
-        const WORKSPACE_PASSWORD = "Abhi@1999";
+        const ADMIN_PASSWORD = "Abhi@1999";
 
-        // DOM Element Targets
-        const repoRootEl = document.getElementById('workspace-repository-root');
-        const selectDropdown = document.getElementById('target-folder-select');
+        // DOM Targets
+        const repo = document.getElementById('repo');
+        const selectDropdown = document.getElementById('updateFolder');
         const managementTbody = document.getElementById('management-table-tbody');
 
         // Real-time Event Listener to capture database state transforms instantly
         onSnapshot(trackerDocRef, (docSnap) => {
             if (docSnap.exists()) {
                 trackerData = docSnap.data();
-                // Ensure folders safety map integrity checks
                 if (!trackerData.folders) trackerData.folders = {};
             } else {
-                // Out-of-the-box structural fallback schema sequence layout mapping
-                trackerData = {
-                    folders: {
-                        "General System Updates": [
-                            {
-                                id: "sample-1",
-                                title: "Welcome to Update Tracker Cloud Engine",
-                                desc: "This tracking workspace is powered live by Firestore database layers. Switch to Admin mode to deploy folder structures and publish operational status updates.",
-                                date: new Date().toLocaleString(),
-                                url: ""
-                            }
-                        ]
-                    }
-                };
+                // Initialize default empty schema if database path is fresh
+                trackerData = { folders: {} };
                 setDoc(trackerDocRef, trackerData);
             }
             renderTrackerWorkspace();
         });
 
-        // Write transactions mapping to Firebase Firestore instance
+        // Write transactions to cloud
         async function syncTrackerToFirebase() {
             try {
                 await setDoc(trackerDocRef, trackerData);
             } catch (error) {
                 console.error("Database cloud write error: ", error);
-                alert("⚠️ Cloud Sync Failed! Ensure your Firestore public test security rules are published.");
+                alert("⚠️ Sync Failed! Verify Firestore Rules are deployed.");
             }
         }
 
-        // Core Render Processing Loops
         function renderTrackerWorkspace() {
             const currentSelectedValue = selectDropdown.value;
 
-            // Clear Dynamic Dropdowns and Management Containers
-            selectDropdown.innerHTML = '<option value="">-- Choose Folder Destination --</option>';
+            selectDropdown.innerHTML = '<option value="">-- Select Folder --</option>';
             managementTbody.innerHTML = '';
-            repoRootEl.innerHTML = '';
+            repo.innerHTML = '';
 
             const folderNames = Object.keys(trackerData.folders).sort();
 
             if (folderNames.length === 0) {
-                repoRootEl.innerHTML = `<div class="no-data-msg">⚠️ Workspace repository completely empty. Elevate credentials to Admin to configure directories.</div>`;
+                repo.innerHTML = `<div class="no-data">⚠️ No folders found. Switch to Admin Mode to create one.</div>`;
                 return;
             }
 
             folderNames.forEach(folderName => {
-                // Append entry inside the administration directory dropdown select options target
                 const option = document.createElement('option');
                 option.value = folderName;
                 option.textContent = folderName;
                 selectDropdown.appendChild(option);
 
-                // Construct Interactive Collapsible Accordion Element View
                 const folderBlock = document.createElement('div');
                 folderBlock.className = 'folder-block';
-                folderBlock.id = `folder-block-${btoa(folderName).replace(/=/g, '')}`;
 
                 const isOpen = openFoldersState[folderName] !== false; 
 
@@ -482,25 +452,24 @@
 
                 const itemsList = trackerData.folders[folderName];
                 if (itemsList.length === 0) {
-                    contentWrapper.innerHTML = `<div style="text-align:center; color:var(--text-light); font-style:italic; font-size:0.9rem;">Folder contains no archived update entries.</div>`;
+                    contentWrapper.innerHTML = `<div style="text-align:center; color:var(--text-light); font-style:italic; font-size:0.9rem;">Folder is empty.</div>`;
                 } else {
-                    // Sort updates newest first
                     const displayedItems = [...itemsList].reverse();
                     displayedItems.forEach((item) => {
                         const updateItem = document.createElement('div');
                         updateItem.className = 'update-item';
                         
-                        const fileMarkup = item.url ? `<a href="${item.url}" target="_blank" class="attachment-link">📎 Reference Material Link</a>` : '';
+                        const fileMarkup = item.url ? `<a href="${item.url}" target="_blank" class="attachment-link">📎 Reference Link</a>` : '';
                         
-                        const actionButtonsMarkup = document.body.classList.contains('admin-mode-active') ? `
+                        const actionButtonsMarkup = document.body.classList.contains('admin-mode') ? `
                             <div class="flex-btn-group" style="margin-top:1rem; border-top:1px dashed var(--border); padding-top:0.75rem;">
-                                <button type="button" class="btn-warning" style="padding:4px 8px; font-size:11px; border-radius:4px;" onclick="modifyLoggedUpdateEntry('${folderName.replace(/'/g, "\\'")}', '${item.id}')">✏️ Edit Log</button>
+                                <button type="button" class="btn-warning" style="padding:4px 8px; font-size:11px; border-radius:4px;" onclick="modifyLoggedUpdateEntry('${folderName.replace(/'/g, "\\'")}', '${item.id}')">✏️ Edit</button>
                                 <button type="button" class="btn-danger" style="padding:4px 8px; font-size:11px; border-radius:4px;" onclick="purgeLoggedUpdateEntry('${folderName.replace(/'/g, "\\'")}', '${item.id}')">🗑️ Delete</button>
                             </div>
                         ` : '';
 
                         updateItem.innerHTML = `
-                            <div class="update-card-body">
+                            <div>
                                 <div class="update-header">
                                     <h4 class="update-title">${item.title}</h4>
                                     <span class="update-date">📅 ${item.date}</span>
@@ -514,17 +483,16 @@
                     });
                 }
                 folderBlock.appendChild(contentWrapper);
-                repoRootEl.appendChild(folderBlock);
+                repo.appendChild(folderBlock);
 
-                // Build Administration control matrix grid data row table bindings
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td style="font-weight:600; color:var(--accent);">${folderName}</td>
-                    <td>${trackerData.folders[folderName].length} logs</td>
+                    <td>${trackerData.folders[folderName].length} items</td>
                     <td>
                         <div class="flex-btn-group">
-                            <button type="button" class="btn-warning" style="padding: 5px 10px; font-size:12px;" onclick="renameWorkspaceFolderLayer('${folderName.replace(/'/g, "\\'")}')">✏️ Rename</button>
-                            <button type="button" class="btn-danger" style="padding: 5px 10px; font-size:12px;" onclick="destroyWorkspaceFolderLayer('${folderName.replace(/'/g, "\\'")}')">🗑️ Drop</button>
+                            <button type="button" class="btn-warning" style="padding: 5px 10px; font-size:12px;" onclick="renameFolder('${folderName.replace(/'/g, "\\'")}')">✏️ Rename</button>
+                            <button type="button" class="btn-danger" style="padding: 5px 10px; font-size:12px;" onclick="deleteFolder('${folderName.replace(/'/g, "\\'")}')">🗑️ Delete Folder</button>
                         </div>
                     </td>
                 `;
@@ -537,15 +505,14 @@
             executeWorkspaceSearch();
         }
 
-        // Mutation Operations Functions
         window.createNewWorkspaceFolder = function(e) {
             e.preventDefault();
-            const inputField = document.getElementById('new-folder-name');
+            const inputField = document.getElementById('folderName');
             const name = inputField.value.trim();
             if (!name) return;
 
             if (trackerData.folders[name]) {
-                alert("A target tracking folder using that title layout identification already exists!");
+                alert("Folder already exists!");
                 return;
             }
 
@@ -556,10 +523,10 @@
 
         window.publishNewUpdateItemLog = function(e) {
             e.preventDefault();
-            const folder = document.getElementById('target-folder-select').value;
-            const title = document.getElementById('update-item-title').value.trim();
-            const desc = document.getElementById('update-item-desc').value.trim();
-            const url = document.getElementById('update-item-url').value.trim();
+            const folder = document.getElementById('updateFolder').value;
+            const title = document.getElementById('updateTitle').value.trim();
+            const desc = document.getElementById('updateDesc').value.trim();
+            const url = document.getElementById('updateUrl').value.trim();
 
             if (!folder || !title || !desc) return;
 
@@ -574,19 +541,19 @@
             trackerData.folders[folder].push(newLog);
             syncTrackerToFirebase();
 
-            document.getElementById('update-item-title').value = '';
-            document.getElementById('update-item-desc').value = '';
-            document.getElementById('update-item-url').value = '';
+            document.getElementById('updateTitle').value = '';
+            document.getElementById('updateDesc').value = '';
+            document.getElementById('updateUrl').value = '';
         };
 
-        window.renameWorkspaceFolderLayer = function(oldName) {
-            const newName = prompt(`Modify Folder identity layer name for "${oldName}":`, oldName);
+        window.renameFolder = function(oldName) {
+            const newName = prompt(`Rename folder "${oldName}" to:`, oldName);
             if (newName === null) return;
             const cleanName = newName.trim();
-            if (!cleanName) return alert("Folder identity strings cannot be empty properties.");
+            if (!cleanName) return alert("Folder name cannot be empty.");
 
             if (trackerData.folders[cleanName] && cleanName !== oldName) {
-                return alert("A processing folder using that configuration label is already active.");
+                return alert("A folder with that name already exists.");
             }
 
             trackerData.folders[cleanName] = trackerData.folders[oldName];
@@ -600,8 +567,8 @@
             syncTrackerToFirebase();
         };
 
-        window.destroyWorkspaceFolderLayer = function(folderName) {
-            if (confirm(`⚠️ Critical Action: Delete "${folderName}" and all associated deployment history logs permanent?`)) {
+        window.deleteFolder = function(folderName) {
+            if (confirm(`⚠️ Are you sure you want to delete "${folderName}" and all its contents permanently?`)) {
                 delete trackerData.folders[folderName];
                 delete openFoldersState[folderName];
                 syncTrackerToFirebase();
@@ -614,16 +581,16 @@
             if (itemIndex === -1) return;
 
             const currentItem = items[itemIndex];
-            const newTitle = prompt("Edit Update Log Title Header:", currentItem.title);
+            const newTitle = prompt("Edit Title:", currentItem.title);
             if (newTitle === null) return;
 
-            const newDesc = prompt("Edit Update Log Description details:", currentItem.desc);
+            const newDesc = prompt("Edit Description:", currentItem.desc);
             if (newDesc === null) return;
 
-            const newUrl = prompt("Edit Attachment Resource URL String (Optional):", currentItem.url);
+            const newUrl = prompt("Edit Reference Link (Optional):", currentItem.url);
             if (newUrl === null) return;
 
-            if (!newTitle.trim() || !newDesc.trim()) return alert("Core structural parameters cannot be empty values.");
+            if (!newTitle.trim() || !newDesc.trim()) return alert("Fields cannot be empty.");
 
             trackerData.folders[folderName][itemIndex].title = newTitle.trim();
             trackerData.folders[folderName][itemIndex].desc = newDesc.trim();
@@ -634,21 +601,20 @@
         };
 
         window.purgeLoggedUpdateEntry = function(folderName, logId) {
-            if (confirm("Confirm removal of this deployment entry record trace?")) {
+            if (confirm("Delete this update log item?")) {
                 trackerData.folders[folderName] = trackerData.folders[folderName].filter(i => i.id !== logId);
                 syncTrackerToFirebase();
             }
         };
 
-        // Local State / Search Utility Interfaces
         function toggleFolderStateVisibility(folderName) {
             openFoldersState[folderName] = openFoldersState[folderName] === false;
             renderTrackerWorkspace();
         }
 
         window.executeWorkspaceSearch = function() {
-            const query = document.getElementById('workspace-search-input').value.toLowerCase().trim();
-            const blocks = repoRootEl.getElementsByClassName('folder-block');
+            const query = document.getElementById('search').value.toLowerCase().trim();
+            const blocks = repo.getElementsByClassName('folder-block');
 
             if (!query) {
                 for (let block of blocks) {
@@ -679,34 +645,30 @@
         };
 
         window.clearWorkspaceSearchFilters = function() {
-            document.getElementById('workspace-search-input').value = '';
+            document.getElementById('search').value = '';
             executeWorkspaceSearch();
         };
 
-        // Security Authentication Interface Handlers
-        window.triggerAdminAuthSequence = function() {
-            if (document.body.classList.contains('admin-mode-active')) {
-                document.body.classList.remove('admin-mode-active');
-                document.getElementById('admin-toggle-btn').className = 'btn-secondary';
-                document.getElementById('admin-toggle-btn').textContent = '⚙️ Enter Admin Mode';
-                document.getElementById('user-info-card').style.display = 'block';
+        window.toggleAdminMode = function() {
+            if (document.body.classList.contains('admin-mode')) {
+                document.body.classList.remove('admin-mode');
+                document.getElementById('adminBtn').className = 'btn-secondary';
+                document.getElementById('adminBtn').textContent = '⚙️ Admin Mode';
                 renderTrackerWorkspace();
                 return;
             }
 
-            const checkPass = prompt("Enter Administrative Security Access Password:");
-            if (checkPass === WORKSPACE_PASSWORD) {
-                document.body.classList.add('admin-mode-active');
-                document.getElementById('admin-toggle-btn').className = 'btn-danger';
-                document.getElementById('admin-toggle-btn').textContent = '🔑 Exit Admin Mode';
-                document.getElementById('user-info-card').style.display = 'none';
+            const password = prompt("Enter Admin Password:");
+            if (password === ADMIN_PASSWORD) {
+                document.body.classList.add('admin-mode');
+                document.getElementById('adminBtn').className = 'btn-danger';
+                document.getElementById('adminBtn').textContent = '🔑 Exit Admin Mode';
                 renderTrackerWorkspace();
-            } else if (checkPass !== null) {
-                alert("⚠️ Authentication failure! Access credentials invalid.");
+            } else if (password !== null) {
+                alert("⚠️ Incorrect Password!");
             }
         };
 
-        // Utility Backup JSON data converters (Directly linked to current state arrays)
         window.backupJSONExportData = function() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(trackerData, null, 4));
             const downloadAnchor = document.createElement('a');
@@ -726,16 +688,16 @@
                 try {
                     const parsedData = JSON.parse(e.target.result);
                     if (parsedData && typeof parsedData.folders === 'object') {
-                        if (confirm("Valid update tracker archive parsed. Overwrite live Firebase repository data layers?")) {
+                        if (confirm("Valid update tracker backup layout found. Overwrite live database?")) {
                             trackerData = parsedData;
                             await syncTrackerToFirebase();
-                            alert("🚀 Workspace state database successfully migrated to Firebase!");
+                            alert("🚀 Success! Data migrated to Firebase completely.");
                         }
                     } else {
-                        alert("Structural validation failed! Missing valid folders schema definition object properties.");
+                        alert("Invalid JSON data layout formatting.");
                     }
                 } catch (err) {
-                    alert("Parsing file failure. Ensure importing an official layout schema string block formatting configuration.");
+                    alert("Error processing JSON file structure.");
                 }
             };
             fileReader.readAsText(file);
