@@ -361,7 +361,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Firebase configuration loaded from your platform console screen
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBeMu-xGaNx_SM_lfBlFUQILZprgTq3pxQ",
             authDomain: "uat-dashboard-50539.firebaseapp.com",
@@ -376,7 +376,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Separate document partition for tracking configs
+        // Tracker Configuration Reference
         const trackerDocRef = doc(db, "config_collection", "tracker_config");
 
         let trackerData = { folders: {} };
@@ -388,20 +388,19 @@
         const selectDropdown = document.getElementById('updateFolder');
         const managementTbody = document.getElementById('management-table-tbody');
 
-        // Real-time Event Listener to capture database state transforms instantly
+        // Snapshot cloud listener
         onSnapshot(trackerDocRef, (docSnap) => {
             if (docSnap.exists()) {
                 trackerData = docSnap.data();
                 if (!trackerData.folders) trackerData.folders = {};
             } else {
-                // Initialize default empty schema if database path is fresh
                 trackerData = { folders: {} };
                 setDoc(trackerDocRef, trackerData);
             }
             renderTrackerWorkspace();
         });
 
-        // Write transactions to cloud
+        // Write to firestore instance
         async function syncTrackerToFirebase() {
             try {
                 await setDoc(trackerDocRef, trackerData);
